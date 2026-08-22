@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -168,6 +169,13 @@ public class CafeMenuBlockEntityRenderer implements BlockEntityRenderer<CafeMenu
             return;
         }
 
+        poseStack.pushPose();
+
+        if (!(stack.getItem() instanceof BlockItem)) {
+            poseStack.translate(0f, 0.05f, 0f);
+            poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
+        }
+
         GeneralUtils.renderFood(
                 stack,
                 poseStack,
@@ -177,5 +185,7 @@ public class CafeMenuBlockEntityRenderer implements BlockEntityRenderer<CafeMenu
                 light,
                 overlay
         );
+
+        poseStack.popPose();
     }
 }

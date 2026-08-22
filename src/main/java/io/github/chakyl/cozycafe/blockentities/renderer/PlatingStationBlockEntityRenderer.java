@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -39,6 +40,10 @@ public class PlatingStationBlockEntityRenderer implements BlockEntityRenderer<Pl
 
         poseStack.pushPose();
         poseStack.translate(0.5f, 1.11f, 0.5f);
+        if (!(stack.getItem() instanceof BlockItem)) {
+            poseStack.translate(0f, 0.05f, 0f);
+            poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
+        }
 
         GeneralUtils.renderFood(
                 stack,
