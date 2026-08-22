@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.IDynamicBakedModel;
@@ -42,12 +43,25 @@ public class ServingPlateModel implements IDynamicBakedModel {
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType) {
         List<BakedQuad> quads = new ArrayList<>(plateModel.getQuads(state, side, rand, extraData, renderType));
         if (food != null && !food.isEmpty()) {
-            BakedModel foodModel = Minecraft.getInstance().getItemRenderer().getModel(food, null, null, 0);
+            BakedModel foodModel;
+            int rotation = 0;
+            double yoffset = 0;
+
+            if (food.getItem() instanceof BlockItem blockItem) {
+                BlockState foodBlockState = blockItem.getBlock().defaultBlockState();
+                foodModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(foodBlockState);
+                yoffset = -0.1;
+            } else {
+                foodModel = Minecraft.getInstance().getItemRenderer().getModel(food, null, null, 0);
+                rotation = 90;
+                yoffset = -0.5;
+            }
+
             if (!(foodModel instanceof ServingPlateModel)) {
                 PoseStack poseStack = new PoseStack();
                 poseStack.translate(0.5, 3f / 16.0f, 0.5);
-                poseStack.mulPose(Axis.XP.rotationDegrees(90));
-                poseStack.translate(-0.5, -0.5, -0.5);
+                poseStack.mulPose(Axis.XP.rotationDegrees(rotation));
+                poseStack.translate(-0.5, yoffset, -0.5);
                 IQuadTransformer transformer = QuadTransformers.applying(new Transformation(poseStack.last().pose()));
                 for (BakedQuad quad : foodModel.getQuads(state, side, rand, extraData, renderType)) {
                     quads.add(transformer.process(quad));
