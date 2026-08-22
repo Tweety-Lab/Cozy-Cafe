@@ -2,6 +2,7 @@ package io.github.chakyl.cozycafe.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -12,6 +13,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
 
@@ -56,11 +58,12 @@ public class GeneralUtils {
     // TODO: Find a way to merge renderFood and getFoodModel into just one public method?
 
     // Nullability here is a bit scuffed
-    public static void renderFood(ItemStack stack, PoseStack poseStack, MultiBufferSource buffer, @Nullable BlockPos pos, Level level, int light, int overlay) {
+    public static void renderFood(ItemStack stack, PoseStack poseStack, MultiBufferSource buffer, @Nullable BlockEntity blockEnt, int light, int overlay) {
         Minecraft minecraft = Minecraft.getInstance();
+        poseStack.pushPose();
 
         if (stack.getItem() instanceof BlockItem blockItem) {
-            if (pos == null) {
+            if (blockEnt == null || blockEnt.getLevel() == null) {
                 return;
             }
 
@@ -69,16 +72,15 @@ public class GeneralUtils {
             RenderType renderType = RenderType.solid();
             VertexConsumer consumer = buffer.getBuffer(renderType);
 
-            poseStack.pushPose();
             poseStack.translate(-0.5D, 0.0D, -0.5D); // Block models have different coordinates, adjust
 
             minecraft.getBlockRenderer()
                     .getModelRenderer()
                     .tesselateBlock(
-                            level,
+                            blockEnt.getLevel(),
                             model,
                             blockState,
-                            pos,
+                            blockEnt.getBlockPos(),
                             poseStack,
                             consumer,
                             false,
@@ -92,6 +94,9 @@ public class GeneralUtils {
             poseStack.popPose();
 
         } else {
+            poseStack.translate(0f, 0.05f, 0f);
+            poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
+
             minecraft.getItemRenderer().renderStatic(
                     stack,
                     ItemDisplayContext.FIXED,
@@ -102,6 +107,8 @@ public class GeneralUtils {
                     null,
                     0
             );
+
+            poseStack.popPose();
         }
     }
 

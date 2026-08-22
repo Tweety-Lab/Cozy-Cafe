@@ -1,6 +1,5 @@
 package io.github.chakyl.cozycafe.blockentities.renderer;
 
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import io.github.chakyl.cozycafe.blockentities.PlatingStationBlockEntity;
@@ -11,10 +10,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 
 public class PlatingStationBlockEntityRenderer implements BlockEntityRenderer<PlatingStationBlockEntity> {
     private final ItemRenderer itemRenderer;
@@ -32,31 +29,6 @@ public class PlatingStationBlockEntityRenderer implements BlockEntityRenderer<Pl
         poseStack.popPose();
     }
 
-    private void renderFoodItem(ItemStack stack, PlatingStationBlockEntity blockEntity, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay) {
-        Level level = blockEntity.getLevel();
-        if (level == null) {
-            return;
-        }
-
-        poseStack.pushPose();
-        poseStack.translate(0.5f, 1.11f, 0.5f);
-        if (!(stack.getItem() instanceof BlockItem)) {
-            poseStack.translate(0f, 0.05f, 0f);
-            poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
-        }
-
-        GeneralUtils.renderFood(
-                stack,
-                poseStack,
-                bufferSource,
-                blockEntity.getBlockPos(),
-                level,
-                light,
-                overlay
-        );
-
-        poseStack.popPose();
-    }
 
     @Override
     public void render(PlatingStationBlockEntity pBlockEntity, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight, int pPackedOverlay) {
@@ -66,7 +38,12 @@ public class PlatingStationBlockEntityRenderer implements BlockEntityRenderer<Pl
             renderPlate(new ItemStack(CozyRegistry.ItemRegistry.SERVING_PLATE.get()), pPoseStack, pBuffer, pPackedLight, pPackedOverlay);
             ItemStack plateInTheFoodOfEatTheHotFoodOut = ServingPlateItem.getStoredFood(stationItem);
             if (!plateInTheFoodOfEatTheHotFoodOut.isEmpty()) {
-                renderFoodItem(plateInTheFoodOfEatTheHotFoodOut, pBlockEntity, pPoseStack, pBuffer, pPackedLight, pPackedOverlay);
+                pPoseStack.pushPose();
+                pPoseStack.translate(0.5D, 1.11D, 0.5D); // Adjust for the block height
+
+                GeneralUtils.renderFood(plateInTheFoodOfEatTheHotFoodOut, pPoseStack, pBuffer, pBlockEntity, pPackedLight, pPackedOverlay);
+
+                pPoseStack.popPose();
             }
         } else if (stationItem.is(CozyRegistry.ItemRegistry.SERVING_PLATE.get())) {
             renderPlate(stationItem, pPoseStack, pBuffer, pPackedLight, pPackedOverlay);

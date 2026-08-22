@@ -108,11 +108,11 @@ public class CafeMenuBlockEntityRenderer implements BlockEntityRenderer<CafeMenu
                 poseStack.translate(0.0f, -0.22f, 0.0f);
             }
 
-            renderFoodItem(
+            GeneralUtils.renderFood(
                     blockEntity.getEatingItem(),
-                    blockEntity,
                     poseStack,
                     bufferSource,
+                    blockEntity,
                     packedLight,
                     packedOverlay
             );
@@ -161,31 +161,5 @@ public class CafeMenuBlockEntityRenderer implements BlockEntityRenderer<CafeMenu
             playerModel.renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
             poseStack.popPose();
         }
-    }
-
-    private void renderFoodItem(ItemStack stack, CafeMenuBlockEntity blockEntity, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay) {
-        Level level = blockEntity.getLevel();
-        if (level == null) {
-            return;
-        }
-
-        poseStack.pushPose();
-
-        if (!(stack.getItem() instanceof BlockItem)) {
-            poseStack.translate(0f, 0.05f, 0f);
-            poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
-        }
-
-        GeneralUtils.renderFood(
-                stack,
-                poseStack,
-                bufferSource,
-                blockEntity.getBlockPos(),
-                level,
-                light,
-                overlay
-        );
-
-        poseStack.popPose();
     }
 }
