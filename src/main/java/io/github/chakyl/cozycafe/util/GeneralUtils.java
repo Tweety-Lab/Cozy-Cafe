@@ -1,6 +1,11 @@
 package io.github.chakyl.cozycafe.util;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class GeneralUtils {
     public static int getDay(Level level) {
@@ -36,5 +41,14 @@ public class GeneralUtils {
             out.append(number, i * 3 + start, i * 3 + start + 3);
         }
         return out.toString();
+    }
+
+    public static BakedModel getFoodModel(BlockState blockState, ItemStack foodItem) {
+        if (foodItem.getItem() instanceof BlockItem blockItem) {
+            BlockState foodBlockState = blockItem.getBlock().defaultBlockState();
+            return Minecraft.getInstance().getBlockRenderer().getBlockModel(foodBlockState);
+        }
+
+        return Minecraft.getInstance().getItemRenderer().getModel(foodItem, null, null, 0);
     }
 }

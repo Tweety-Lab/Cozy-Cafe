@@ -3,6 +3,7 @@ package io.github.chakyl.cozycafe.client.model;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.mojang.math.Transformation;
+import io.github.chakyl.cozycafe.util.GeneralUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -43,16 +44,14 @@ public class ServingPlateModel implements IDynamicBakedModel {
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType) {
         List<BakedQuad> quads = new ArrayList<>(plateModel.getQuads(state, side, rand, extraData, renderType));
         if (food != null && !food.isEmpty()) {
-            BakedModel foodModel;
+            BakedModel foodModel = GeneralUtils.getFoodModel(state, food);
+
             int rotation = 0;
             double yoffset = 0;
 
-            if (food.getItem() instanceof BlockItem blockItem) {
-                BlockState foodBlockState = blockItem.getBlock().defaultBlockState();
-                foodModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(foodBlockState);
+            if (food.getItem() instanceof BlockItem) {
                 yoffset = -0.1;
             } else {
-                foodModel = Minecraft.getInstance().getItemRenderer().getModel(food, null, null, 0);
                 rotation = 90;
                 yoffset = -0.5;
             }
