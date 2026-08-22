@@ -6,7 +6,9 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import io.github.chakyl.cozycafe.CozyCafe;
 import io.github.chakyl.cozycafe.blockentities.CafeMenuBlockEntity;
+import io.github.chakyl.cozycafe.blockentities.PlatingStationBlockEntity;
 import io.github.chakyl.cozycafe.blocks.CafeMenuBlock;
+import io.github.chakyl.cozycafe.util.GeneralUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -20,6 +22,8 @@ import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
 
 public class CafeMenuBlockEntityRenderer implements BlockEntityRenderer<CafeMenuBlockEntity> {
@@ -71,35 +75,47 @@ public class CafeMenuBlockEntityRenderer implements BlockEntityRenderer<CafeMenu
         } else if (!blockEntity.getEatingItem().isEmpty()) {
             poseStack.pushPose();
             Direction facing = blockEntity.getBlockState().getValue(CafeMenuBlock.FACING).getOpposite();
-            final float foodSize = 1.25f;
+
+            final float foodSize = 1f;
+
             if (blockEntity.getCurrentCourse() == 1 + 1) {
-                poseStack.translate(0.5f, 0.15f, 0.5f);
+                poseStack.translate(0.5f, 0.1f, 0.5f);
                 poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot()));
                 poseStack.scale(foodSize, foodSize, foodSize);
-                poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
-                poseStack.translate(0.0f, -0.1f, 0.0f);
             } else if (blockEntity.getCurrentCourse() == 0 + 1) {
-                poseStack.translate(0.5f + (facing.getStepX() * 0.35f) + (facing.getClockWise().getStepX() * 0.3f), 0.4f, 0.5f + (facing.getStepZ() * 0.35f) + (facing.getClockWise().getStepZ() * 0.3f));
+                poseStack.translate(
+                        0.5f + (facing.getStepX() * 0.35f) + (facing.getClockWise().getStepX() * 0.3f),
+                        0.4f,
+                        0.5f + (facing.getStepZ() * 0.35f) + (facing.getClockWise().getStepZ() * 0.3f)
+                );
+
                 poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot() - 20.0f));
+
                 poseStack.scale(foodSize, foodSize, foodSize);
                 poseStack.translate(0.0f, -0.22f, 0.0f);
             } else {
                 // TODO: figure out wtf to do here
-                poseStack.translate(0.5f + (facing.getStepX() * 0.35f) + (facing.getClockWise().getStepX() * 0.3f), 0.4f, 0.5f + (facing.getStepZ() * 0.35f) + (facing.getClockWise().getStepZ() * 0.3f));
+                poseStack.translate(
+                        0.5f + (facing.getStepX() * 0.35f) + (facing.getClockWise().getStepX() * 0.3f),
+                        0.4f,
+                        0.5f + (facing.getStepZ() * 0.35f) + (facing.getClockWise().getStepZ() * 0.3f)
+                );
+
                 poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot() - 20.0f));
+
                 poseStack.scale(foodSize, foodSize, foodSize);
                 poseStack.translate(0.0f, -0.22f, 0.0f);
             }
-            this.itemRenderer.renderStatic(
+
+            renderFoodItem(
                     blockEntity.getEatingItem(),
-                    ItemDisplayContext.GROUND,
-                    packedLight,
-                    packedOverlay,
+                    blockEntity,
                     poseStack,
                     bufferSource,
-                    blockEntity.getLevel(),
-                    (int) blockEntity.getBlockPos().asLong()
+                    packedLight,
+                    packedOverlay
             );
+
             poseStack.popPose();
         }
         if (blockEntity.getHasCustomer()) {
@@ -144,5 +160,22 @@ public class CafeMenuBlockEntityRenderer implements BlockEntityRenderer<CafeMenu
             playerModel.renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
             poseStack.popPose();
         }
+    }
+
+    private void renderFoodItem(ItemStack stack, CafeMenuBlockEntity blockEntity, PoseStack poseStack, MultiBufferSource bufferSource, int light, int overlay) {
+        Level level = blockEntity.getLevel();
+        if (level == null) {
+            return;
+        }
+
+        GeneralUtils.renderFood(
+                stack,
+                poseStack,
+                bufferSource,
+                blockEntity.getBlockPos(),
+                level,
+                light,
+                overlay
+        );
     }
 }
