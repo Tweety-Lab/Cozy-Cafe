@@ -44,7 +44,7 @@ public class ServingPlateModel implements IDynamicBakedModel {
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @NotNull RandomSource rand, @NotNull ModelData extraData, @Nullable RenderType renderType) {
         List<BakedQuad> quads = new ArrayList<>(plateModel.getQuads(state, side, rand, extraData, renderType));
         if (food != null && !food.isEmpty()) {
-            BakedModel foodModel = GeneralUtils.getFoodModel(state, food);
+            BakedModel foodModel = GeneralUtils.getFoodModel(food);
 
             int rotation = 0;
             double yoffset = 0;

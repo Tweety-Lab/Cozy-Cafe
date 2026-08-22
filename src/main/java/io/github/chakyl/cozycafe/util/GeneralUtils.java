@@ -43,7 +43,7 @@ public class GeneralUtils {
         return out.toString();
     }
 
-    public static BakedModel getFoodModel(BlockState blockState, ItemStack foodItem) {
+    public static BakedModel getFoodModel(ItemStack foodItem) {
         if (foodItem.getItem() instanceof BlockItem blockItem) {
             BlockState foodBlockState = blockItem.getBlock().defaultBlockState();
             return Minecraft.getInstance().getBlockRenderer().getBlockModel(foodBlockState);
