@@ -96,16 +96,9 @@ public class CafeMenuBlockEntityRenderer implements BlockEntityRenderer<CafeMenu
                 poseStack.translate(0.0f, -0.22f, 0.0f);
             } else {
                 // TODO: figure out wtf to do here
-                poseStack.translate(
-                        0.5f + (facing.getStepX() * 0.35f) + (facing.getClockWise().getStepX() * 0.3f),
-                        0.4f,
-                        0.5f + (facing.getStepZ() * 0.35f) + (facing.getClockWise().getStepZ() * 0.3f)
-                );
-
-                poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot() - 20.0f));
-
+                poseStack.translate(0.5f, 0f, 0.5f);
+                poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot()));
                 poseStack.scale(foodSize, foodSize, foodSize);
-                poseStack.translate(0.0f, -0.22f, 0.0f);
             }
 
             GeneralUtils.renderFood(
