@@ -8,6 +8,7 @@ import io.github.chakyl.cozycafe.CozyCafe;
 import io.github.chakyl.cozycafe.blockentities.CafeMenuBlockEntity;
 import io.github.chakyl.cozycafe.blocks.CafeMenuBlock;
 import io.github.chakyl.cozycafe.util.CustomerSkinUtils;
+import io.github.chakyl.cozycafe.util.GeneralUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -20,6 +21,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemDisplayContext;
 
 
@@ -76,35 +78,48 @@ public class CafeMenuBlockEntityRenderer implements BlockEntityRenderer<CafeMenu
         } else if (!blockEntity.getEatingItem().isEmpty()) {
             poseStack.pushPose();
             Direction facing = blockEntity.getBlockState().getValue(CafeMenuBlock.FACING).getOpposite();
-            final float foodSize = 1.25f;
+
+            final float foodSize = 1f;
+
             if (blockEntity.getCurrentCourse() == 1 + 1) {
-                poseStack.translate(0.5f, 0.15f, 0.5f);
+                // Main
+                poseStack.translate(0.5f, 0.1f, 0.5f);
                 poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot()));
                 poseStack.scale(foodSize, foodSize, foodSize);
-                poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
-                poseStack.translate(0.0f, -0.1f, 0.0f);
             } else if (blockEntity.getCurrentCourse() == 0 + 1) {
-                poseStack.translate(0.5f + (facing.getStepX() * 0.35f) + (facing.getClockWise().getStepX() * 0.3f), 0.4f, 0.5f + (facing.getStepZ() * 0.35f) + (facing.getClockWise().getStepZ() * 0.3f));
+                // Drink
+                poseStack.translate(
+                        0.45f + (facing.getStepX() * 0.35f) + (facing.getClockWise().getStepX() * 0.3f),
+                        0f,
+                        0.45f + (facing.getStepZ() * 0.35f) + (facing.getClockWise().getStepZ() * 0.3f)
+                );
+
                 poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot() - 20.0f));
-                poseStack.scale(foodSize, foodSize, foodSize);
-                poseStack.translate(0.0f, -0.22f, 0.0f);
+
+                if (!(blockEntity.getEatingItem().getItem() instanceof BlockItem)) {
+                    poseStack.translate(0f, 0.25f, 0f);
+                    poseStack.mulPose(Axis.XP.rotationDegrees(-90.0f));
+                }
+
+                poseStack.scale(foodSize * 0.65f, foodSize *  0.65f, foodSize *  0.65f);
             } else {
+                // Dessert
                 // TODO: figure out wtf to do here
-                poseStack.translate(0.5f + (facing.getStepX() * 0.35f) + (facing.getClockWise().getStepX() * 0.3f), 0.4f, 0.5f + (facing.getStepZ() * 0.35f) + (facing.getClockWise().getStepZ() * 0.3f));
-                poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot() - 20.0f));
+                poseStack.translate(0.5f, 0f, 0.5f);
+                poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot()));
                 poseStack.scale(foodSize, foodSize, foodSize);
-                poseStack.translate(0.0f, -0.22f, 0.0f);
             }
-            this.itemRenderer.renderStatic(
+
+
+            GeneralUtils.renderFood(
                     blockEntity.getEatingItem(),
-                    ItemDisplayContext.GROUND,
-                    packedLight,
-                    packedOverlay,
                     poseStack,
                     bufferSource,
-                    blockEntity.getLevel(),
-                    (int) blockEntity.getBlockPos().asLong()
+                    blockEntity,
+                    packedLight,
+                    packedOverlay
             );
+
             poseStack.popPose();
         }
         if (blockEntity.getHasCustomer()) {
