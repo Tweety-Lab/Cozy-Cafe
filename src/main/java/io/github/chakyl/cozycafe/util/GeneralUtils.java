@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.Model;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.model.data.ModelData;
 
 import javax.annotation.Nullable;
@@ -60,40 +62,52 @@ public class GeneralUtils {
     // Nullability here is a bit scuffed
     public static void renderFood(ItemStack stack, PoseStack poseStack, MultiBufferSource buffer, @Nullable BlockEntity blockEnt, int light, int overlay) {
         Minecraft minecraft = Minecraft.getInstance();
-        poseStack.pushPose();
 
         if (stack.getItem() instanceof BlockItem blockItem) {
             if (blockEnt == null || blockEnt.getLevel() == null) {
                 return;
             }
 
+            poseStack.pushPose();
+
             BlockState blockState = blockItem.getBlock().defaultBlockState();
             BakedModel model = minecraft.getBlockRenderer().getBlockModel(blockState);
-            RenderType renderType = RenderType.solid();
-            VertexConsumer consumer = buffer.getBuffer(renderType);
+
+            RandomSource random = RandomSource.create();
+            ModelData modelData = ModelData.EMPTY;
+
+            ChunkRenderTypeSet renderTypes = model.getRenderTypes(
+                    blockState,
+                    random,
+                    modelData
+            );
 
             poseStack.translate(-0.5D, 0.0D, -0.5D); // Block models have different coordinates, adjust
 
-            minecraft.getBlockRenderer()
-                    .getModelRenderer()
-                    .tesselateBlock(
-                            blockEnt.getLevel(),
-                            model,
-                            blockState,
-                            blockEnt.getBlockPos(),
-                            poseStack,
-                            consumer,
-                            false,
-                            RandomSource.create(),
-                            42L,
-                            overlay,
-                            ModelData.EMPTY,
-                            renderType
-                    );
+            for (RenderType renderType : renderTypes) {
+                VertexConsumer consumer = buffer.getBuffer(renderType);
+
+                minecraft.getBlockRenderer().getModelRenderer().tesselateBlock(
+                                blockEnt.getLevel(),
+                                model,
+                                blockState,
+                                blockEnt.getBlockPos(),
+                                poseStack,
+                                consumer,
+                                false,
+                                random,
+                                42L,
+                                overlay,
+                                modelData,
+                                renderType
+                );
+            }
 
             poseStack.popPose();
 
         } else {
+            poseStack.pushPose();
+
             poseStack.translate(0f, 0.05f, 0f);
             poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
 
