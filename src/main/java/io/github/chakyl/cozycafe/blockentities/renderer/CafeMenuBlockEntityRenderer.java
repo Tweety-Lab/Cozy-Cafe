@@ -7,7 +7,7 @@ import com.mojang.math.Axis;
 import io.github.chakyl.cozycafe.CozyCafe;
 import io.github.chakyl.cozycafe.blockentities.CafeMenuBlockEntity;
 import io.github.chakyl.cozycafe.blocks.CafeMenuBlock;
-import io.github.chakyl.cozycafe.util.GeneralUtils;
+import io.github.chakyl.cozycafe.util.CustomerSkinUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
@@ -110,7 +110,7 @@ public class CafeMenuBlockEntityRenderer implements BlockEntityRenderer<CafeMenu
         if (blockEntity.getHasCustomer()) {
             poseStack.pushPose();
 
-            PlayerModel<?> playerModel = GeneralUtils.hasSlimSkin(blockEntity.getGameProfile()) ? slimModel : wideModel;
+            PlayerModel<?> playerModel = CustomerSkinUtils.getCustomerSkinInfo(blockEntity.getGameProfile()).isSlim() ? slimModel : wideModel;
 
             Direction facing = blockEntity.getBlockState().getValue(CafeMenuBlock.FACING);
             poseStack.translate(0.5F + facing.getStepX(), 1.7F, 0.5F + facing.getStepZ());
@@ -143,10 +143,7 @@ public class CafeMenuBlockEntityRenderer implements BlockEntityRenderer<CafeMenu
             playerModel.leftSleeve.copyFrom(playerModel.leftArm);
 
             GameProfile profile = blockEntity.getGameProfile();
-            ResourceLocation textureLocation = DefaultPlayerSkin.getDefaultSkin();
-            if (profile != null) {
-                textureLocation = Minecraft.getInstance().getSkinManager().getInsecureSkinLocation(profile);
-            }
+            ResourceLocation textureLocation = CustomerSkinUtils.getCustomerSkinInfo(profile).location();
 
             VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(textureLocation));
             playerModel.renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay, 1.0F, 1.0F, 1.0F, 1.0F);
